@@ -27,10 +27,10 @@ help:
 ##################
 
 ## Install all install_* requirements and launch project.
-install: env_file env_run install_vendor install_db
+install: env_file env_run install_vendor db_install
 
 ## Run project, install vendors and run migrations.
-run: env_run install_vendor install_db
+run: env_run install_vendor db_install
 
 ## Stop project.
 stop:
@@ -85,14 +85,6 @@ env_run:
 # Install #
 ###########
 
-## Run database migration.
-install_db:
-	docker-compose run --rm php bin/console do:mi:mi -n
-
-## Run test database migration.
-install_db_test:
-	docker-compose exec php bin/console do:mi:mi -n --env=test
-
 ## Install vendors.
 install_vendor:
 	docker-compose run --rm php composer install --prefer-dist --no-scripts --no-progress --no-suggest
@@ -113,7 +105,7 @@ install_scripts:
 ########
 
 ## Run unit&integration tests with pre-installing test database.
-test: install_db_test test_unit
+test: db_install_test test_unit
 
 ## Run behaviour tests.
 test_behaviour:
@@ -130,6 +122,14 @@ test_unit:
 ## Migrate diff db
 db_diff:
 	 docker-compose exec php bin/console do:mi:di -n
+
+## Run database migration.
+db_install:
+	docker-compose run --rm php bin/console do:mi:mi -n
+
+## Run test database migration.
+db_install_test:
+	docker-compose exec php bin/console do:mi:mi -n --env=test
 
 ################
 # Redis        #
