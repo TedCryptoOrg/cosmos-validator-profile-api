@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  php:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/srv:rw
+      # If you develop on Linux, comment out the following volumes to just use bind-mounted project directory from host
+      - /srv/var/
+      - /srv/var/cache/
+      - /srv/var/logs/
+      - /srv/var/sessions/
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./docker/nginx/Dockerfile
+    depends_on:
+      - php
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/srv/public:ro
+
+  db:
+    build:
+      context: ./docker/mysql
+      dockerfile: ./Dockerfile
+    volumes:
+      - db-data:/var/lib/mysql/data:rw
+    ports:
+      - "3306:3306"
+
+  redis:
+    build:
+      context:  ./docker/redis
+      dockerfile: ./Dockerfile
+    volumes:
+      - redis-data:/var/lib/redis/data:rw
+
+volumes:
+  db-data: {}
+  redis-data: {}
